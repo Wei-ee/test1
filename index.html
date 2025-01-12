@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>转运签</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    /* 引入自定义字体 */
+    @font-face {
+      font-family: 'CustomFont';
+      src: url('./ExtraLight.otf') format('opentype');
+    }
+
+    
+    body, html {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #000;
+    }
+    .content {
+      position: relative;
+      width: 100%; 
+      height: 100%;
+      overflow: hidden;
+    }
+    .content img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .content h1 {
+      position: absolute;
+      top: 26.8%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: calc(18px + 1vw);
+      font-family: 'CustomFont', sans-serif; /* 使用自定义字体 */
+      text-align: center;
+    }
+    #hint-img {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      width: 100px;
+      height: auto;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+  <div class="content" id="capture-area">
+    <img id="type-image" src="default.jpg" alt="签类型图片">
+    <h1 id="name">用户</h1>
+  </div>
+  <img id="hint-img" src="hint.png" alt="保存提示">
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const name = urlParams.get('name') || '用户';
+    const userType = urlParams.get('type') || '健康';
+
+    const imageStyleMap = {
+      "健康": { img: "health.jpg", color: "#E95504" },
+      "爱情": { img: "love.jpg", color: "#BC1E7D" },
+      "财运": { img: "money.jpg", color: "#BB9912" },
+      "平安": { img: "travel.jpg", color: "#E95504" },
+      "事业": { img: "work.jpg", color: "#B28C12" },
+      "学业": { img: "study.jpg", color: "#00B3EA" }
+    };
+
+    const typeImage = document.getElementById('type-image');
+    const nameElement = document.getElementById('name');
+    const hintImage = document.getElementById('hint-img');
+    const styleData = imageStyleMap[userType] || { img: "default.jpg", color: "#FFFFFF" };
+
+    typeImage.src = styleData.img;
+    nameElement.textContent = name;
+    nameElement.style.color = styleData.color;
+
+    typeImage.onerror = () => {
+      alert("图片加载失败，请检查路径是否正确！");
+    };
+
+    window.onload = () => {
+      const captureArea = document.getElementById('capture-area');
+
+      // 在截图前隐藏提示图片
+      hintImage.style.display = 'none';
+
+      // 动态调整截图区域大小
+      captureArea.style.width = `${window.innerWidth}px`;
+      captureArea.style.height = `${window.innerHeight}px`;
+
+      html2canvas(captureArea, { useCORS: true, scale: window.devicePixelRatio }).then((canvas) => {
+        const imageUrl = canvas.toDataURL("image/png");
+
+        // 替换截图区域内容为生成的图片
+        const img = document.createElement('img');
+        img.src = imageUrl;
+        img.style.objectFit = "cover";
+        img.style.width = "100%";
+        img.style.height = "100%";
+        img.alt = "生成的签图片";
+
+        captureArea.innerHTML = "";
+        captureArea.appendChild(img);
+
+        // 恢复提示图片的显示
+        hintImage.style.display = 'block';
+      });
+    };
+  </script>
+</body>
+</html>
